@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import type { CategoryTotal } from '../types/expense';
 import { formatCurrency } from '../utils/formatters';
@@ -60,6 +61,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export default function DonutChart({ data }: DonutChartProps) {
+  const uid = useId();
   const chartData = data.filter(d => d.total > 0).map(d => ({
     name: d.category,
     value: d.total,
@@ -84,7 +86,7 @@ export default function DonutChart({ data }: DonutChartProps) {
               <PieChart>
                 <defs>
                   {chartData.map((entry, index) => (
-                    <linearGradient key={index} id={`donutGrad${index}`} x1="0" y1="0" x2="1" y2="1">
+                    <linearGradient key={index} id={`${uid}donutGrad${index}`} x1="0" y1="0" x2="1" y2="1">
                       <stop offset="0%" stopColor={entry.color} stopOpacity={0.8} />
                       <stop offset="100%" stopColor={entry.color} stopOpacity={1} />
                     </linearGradient>
@@ -103,7 +105,7 @@ export default function DonutChart({ data }: DonutChartProps) {
                   animationDuration={800}
                 >
                   {chartData.map((_, index) => (
-                    <Cell key={index} fill={`url(#donutGrad${index})`} stroke="none" />
+                    <Cell key={index} fill={`url(#${uid}donutGrad${index})`} stroke="none" />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import type { FilterPeriod, ActiveView } from '../types/expense';
 import { useExpenses } from '../hooks/useExpenses';
 import { useBudget } from '../hooks/useBudget';
@@ -58,23 +58,37 @@ const NAV_ITEMS: { id: ActiveView; label: string; icon: ReactNode }[] = [
 ];
 
 export default function Dashboard() {
-  const { expenses, addExpense } = useExpenses();
-  const { budget, updateBudget } = useBudget();
+  const { expenses, addExpense, storageError: expenseStorageError, clearStorageError: clearExpenseError } = useExpenses();
+  const { budget, updateBudget, storageError: budgetStorageError, clearStorageError: clearBudgetError } = useBudget();
   const [period, setPeriod] = useState<FilterPeriod>('this-week');
   const [activeView, setActiveView] = useState<ActiveView>('dashboard');
   const [isPeriodView, setIsPeriodView] = useState(false);
 
-  const totalSpend = calculateTotalSpend(expenses, period);
-  const todayTotal = calculateTodayTotal(expenses);
-  const weekTotal = calculateCurrentWeekTotal(expenses);
-  const monthTotal = calculateMonthTotal(expenses);
-  const expenseCount = calculateExpenseCount(expenses, period);
-  const averageSpend = calculateAverageSpend(expenses, period);
-  const categoriesUsed = calculateCategoriesUsed(expenses, period);
-  const highestSpend = calculateHighestSpend(expenses, period);
-  const dailyTotals = calculateDailyTotals(expenses, period);
-  const categoryTotals = calculateCategoryTotals(expenses, period);
-  const currentWeekTotal = calculateCurrentWeekTotal(expenses);
+  const {
+    totalSpend,
+    todayTotal,
+    weekTotal,
+    monthTotal,
+    expenseCount,
+    averageSpend,
+    categoriesUsed,
+    highestSpend,
+    dailyTotals,
+    categoryTotals,
+    currentWeekTotal,
+  } = useMemo(() => ({
+    totalSpend: calculateTotalSpend(expenses, period),
+    todayTotal: calculateTodayTotal(expenses),
+    weekTotal: calculateCurrentWeekTotal(expenses),
+    monthTotal: calculateMonthTotal(expenses),
+    expenseCount: calculateExpenseCount(expenses, period),
+    averageSpend: calculateAverageSpend(expenses, period),
+    categoriesUsed: calculateCategoriesUsed(expenses, period),
+    highestSpend: calculateHighestSpend(expenses, period),
+    dailyTotals: calculateDailyTotals(expenses, period),
+    categoryTotals: calculateCategoryTotals(expenses, period),
+    currentWeekTotal: calculateCurrentWeekTotal(expenses),
+  }), [expenses, period]);
 
   function handleNavigate(view: ActiveView) {
     setActiveView(view);
@@ -152,7 +166,33 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Workspace */}
-      <main className="flex-1 h-full overflow-y-auto p-8 flex flex-col gap-6">
+      <main className="flex-1 h-full overflow-y-auto p-8 flex flex-col gap-6 relative">
+        {expenseStorageError && (
+          <div className="shrink-0 backdrop-blur-xl bg-amber-500/15 border border-amber-400/30 rounded-xl px-5 py-3 flex items-center gap-3 shadow-xl shadow-amber-500/5">
+            <svg className="w-5 h-5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.27 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <p className="text-sm text-amber-200/90 flex-1">{expenseStorageError}</p>
+            <button onClick={clearExpenseError} className="text-amber-300/50 hover:text-amber-200 transition-colors shrink-0">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+        {budgetStorageError && (
+          <div className="shrink-0 backdrop-blur-xl bg-amber-500/15 border border-amber-400/30 rounded-xl px-5 py-3 flex items-center gap-3 shadow-xl shadow-amber-500/5">
+            <svg className="w-5 h-5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.27 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <p className="text-sm text-amber-200/90 flex-1">{budgetStorageError}</p>
+            <button onClick={clearBudgetError} className="text-amber-300/50 hover:text-amber-200 transition-colors shrink-0">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
         {isPeriodView ? (
           <>
             <MetricCards

@@ -3,6 +3,7 @@ import type { Category, Expense } from '../types/expense';
 import { toISODate } from '../utils/formatters';
 
 const CATEGORIES: Category[] = ['Food', 'Transport', 'Data', 'Fun', 'Other'];
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 interface ExpenseFormProps {
   onAdd: (expense: Expense) => void;
@@ -33,7 +34,8 @@ export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) return;
+    if (isNaN(numAmount) || !isFinite(numAmount) || numAmount <= 0) return;
+    if (!DATE_REGEX.test(date)) return;
 
     onAdd({
       id: generateId(),
@@ -69,11 +71,13 @@ export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
       <div className="space-y-5">
         {/* Row 1: Merchant (full-width) */}
         <div>
-          <label className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
+          <label htmlFor="expense-merchant" className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
             Merchant / Description
           </label>
           <input
             type="text"
+            id="expense-merchant"
+            name="merchant"
             value={merchant}
             onChange={e => setMerchant(e.target.value)}
             placeholder="e.g., Starbucks Coffee"
@@ -84,10 +88,12 @@ export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
         {/* Row 2: Category + Amount */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
+            <label htmlFor="expense-category" className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
               Category
             </label>
             <select
+              id="expense-category"
+              name="category"
               value={category}
               onChange={e => setCategory(e.target.value as Category)}
               className="w-full px-4 py-3 bg-[#1E1435] border border-violet-950/40 rounded-xl text-violet-100 focus:outline-none focus:border-cyber-pink/50 focus:ring-1 focus:ring-cyber-pink/20 transition-all duration-300 appearance-none cursor-pointer"
@@ -98,7 +104,7 @@ export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
             </select>
           </div>
           <div>
-            <label className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
+            <label htmlFor="expense-amount" className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
               Amount
             </label>
             <div className="relative">
@@ -107,6 +113,8 @@ export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
               </span>
               <input
                 type="text"
+                id="expense-amount"
+                name="amount"
                 inputMode="decimal"
                 value={amount}
                 onChange={handleAmountChange}
@@ -120,22 +128,26 @@ export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
         {/* Row 3: Date + Notes */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
+            <label htmlFor="expense-date" className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
               Date
             </label>
             <input
               type="date"
+              id="expense-date"
+              name="date"
               value={date}
               onChange={e => setDate(e.target.value)}
               className="w-full px-4 py-3 bg-[#1E1435] border border-violet-950/40 rounded-xl text-violet-100 focus:outline-none focus:border-cyber-pink/50 focus:ring-1 focus:ring-cyber-pink/20 transition-all duration-300"
             />
           </div>
           <div>
-            <label className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
+            <label htmlFor="expense-notes" className="text-[11px] text-violet-300/40 uppercase tracking-wider font-medium mb-1.5 block">
               Notes / Details
             </label>
             <input
               type="text"
+              id="expense-notes"
+              name="notes"
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="Optional notes..."

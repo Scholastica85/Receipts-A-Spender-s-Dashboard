@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { DailyTotal } from '../types/expense';
 import { formatCurrency } from '../utils/formatters';
@@ -53,6 +54,7 @@ const renderCustomBar = (props: CustomBarShape) => {
 };
 
 export default function BarChart({ data }: BarChartProps) {
+  const uid = useId();
   return (
     <div className="h-full flex flex-col bg-[#161026]/60 border border-violet-950/40 rounded-2xl p-5">
       <h3 className="text-xs font-semibold text-violet-300/60 uppercase tracking-wider shrink-0">
@@ -62,7 +64,7 @@ export default function BarChart({ data }: BarChartProps) {
         <ResponsiveContainer width="100%" height="100%">
           <RechartsBarChart data={data} margin={{ top: 10, right: 8, left: -10, bottom: 0 }}>
             <defs>
-              <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`${uid}barGradient`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#D946EF" />
                 <stop offset="100%" stopColor="#9D4EDD" />
               </linearGradient>
@@ -78,6 +80,7 @@ export default function BarChart({ data }: BarChartProps) {
               tickLine={false}
               tick={{ fill: '#6B5E82', fontSize: 11 }}
               tickFormatter={v => `$${v}`}
+              domain={[0, 'auto']}
             />
             <Tooltip
               content={<CustomTooltip />}
@@ -86,7 +89,7 @@ export default function BarChart({ data }: BarChartProps) {
             <Bar
               dataKey="amount"
               shape={renderCustomBar}
-              fill="url(#barGradient)"
+              fill={`url(#${uid}barGradient)`}
               maxBarSize={40}
               animationDuration={600}
             />

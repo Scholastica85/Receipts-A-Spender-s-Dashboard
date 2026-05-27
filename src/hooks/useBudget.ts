@@ -20,12 +20,21 @@ function loadBudget(): BudgetSettings {
 
 export function useBudget() {
   const [budget, setBudget] = useState<BudgetSettings>(loadBudget);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(budget));
-    } catch {
-      // Storage unavailable
+      setStorageError(null);
+    } catch (err) {
+      const msg = err instanceof DOMException
+        ? err.name === 'QuotaExceededError'
+          ? 'Storage is full. Free up space or remove old entries.'
+          : err.name === 'SecurityError'
+            ? 'Browser storage access is blocked. Check your privacy settings.'
+            : `Storage error: ${err.message}`
+        : 'Unable to save budget data to local storage.';
+      setStorageError(msg);
     }
   }, [budget]);
 
@@ -33,5 +42,7 @@ export function useBudget() {
     setBudget(settings);
   }, []);
 
-  return { budget, updateBudget };
+  const clearStorageError = useCallback(() => setStorageError(null), []);
+
+  return { budget, updateBudget, storageError, clearStorageError };
 }
