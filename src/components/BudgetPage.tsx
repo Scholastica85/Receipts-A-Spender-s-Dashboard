@@ -95,6 +95,8 @@ function BudgetInputCard({
         </span>
         <input
           type="number"
+          id={`budget-${label.toLowerCase()}`}
+          name={`budget-${label.toLowerCase()}`}
           min="0"
           step="0.01"
           value={value || ''}

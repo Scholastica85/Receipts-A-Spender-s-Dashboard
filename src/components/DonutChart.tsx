@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import type { CategoryTotal } from '../types/expense';
 import { formatCurrency } from '../utils/formatters';
@@ -62,6 +62,11 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 
 export default function DonutChart({ data }: DonutChartProps) {
   const uid = useId();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return <div className="w-full h-[300px] bg-transparent" />;
+
   const chartData = data.filter(d => d.total > 0).map(d => ({
     name: d.category,
     value: d.total,
@@ -71,8 +76,8 @@ export default function DonutChart({ data }: DonutChartProps) {
   const hasData = chartData.length > 0;
 
   return (
-    <div className="h-full flex flex-col bg-[#161026]/60 border border-violet-950/40 rounded-2xl p-5">
-      <h3 className="text-xs font-semibold text-violet-300/60 uppercase tracking-wider shrink-0">
+    <div className="h-full flex flex-col bg-[#161026]/60 border border-violet-950/40 rounded-2xl p-4 lg:p-5 overflow-hidden">
+      <h3 className="text-[11px] lg:text-xs font-semibold text-violet-300/60 uppercase tracking-wider shrink-0">
         Spending by Category
       </h3>
       {!hasData ? (
@@ -80,9 +85,10 @@ export default function DonutChart({ data }: DonutChartProps) {
           No category data for this period
         </div>
       ) : (
-        <>
-          <div className="flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
+        <div className="flex flex-row-reverse items-center justify-center w-full min-w-0 h-[200px] gap-2 sm:contents">
+          <div className="w-[55%] h-full sm:w-full sm:flex-1 sm:min-h-0">
+            <div className="w-full min-w-0 relative h-full">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
               <PieChart>
                 <defs>
                   {chartData.map((entry, index) => (
@@ -96,8 +102,8 @@ export default function DonutChart({ data }: DonutChartProps) {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
+                  innerRadius="50%"
+                  outerRadius="75%"
                   dataKey="value"
                   label={renderLabel}
                   labelLine={false}
@@ -111,8 +117,9 @@ export default function DonutChart({ data }: DonutChartProps) {
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
+            </div>
           </div>
-          <div className="grid grid-cols-5 gap-1 mt-3 shrink-0">
+          <div className="w-[42%] sm:w-full text-[11px] sm:text-xs flex flex-col space-y-1 sm:grid sm:grid-cols-5 sm:gap-1 sm:mt-3 shrink-0 sm:space-y-0 pl-1.5 sm:pl-0 mt-8 sm:mt-0">
             {data.map(d => (
               <div
                 key={d.category}
@@ -123,15 +130,15 @@ export default function DonutChart({ data }: DonutChartProps) {
                   style={{ backgroundColor: d.color }}
                 />
                 <div className="min-w-0">
-                  <p className="text-[10px] text-violet-300/40 truncate leading-tight">{d.category}</p>
-                  <p className="text-[10px] font-semibold text-violet-100/70 leading-tight">
+                  <p className="text-violet-300/40 truncate leading-tight">{d.category}</p>
+                  <p className="font-semibold text-violet-100/70 leading-tight">
                     {d.percentage.toFixed(0)}%
                   </p>
                 </div>
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

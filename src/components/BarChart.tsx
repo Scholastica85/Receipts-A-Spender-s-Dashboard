@@ -1,10 +1,11 @@
-import { useId } from 'react';
+import { useId, useState, useEffect } from 'react';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { DailyTotal } from '../types/expense';
 import { formatCurrency } from '../utils/formatters';
 
 interface BarChartProps {
   data: DailyTotal[];
+  title?: string;
 }
 
 interface TooltipPayloadItem {
@@ -53,15 +54,26 @@ const renderCustomBar = (props: CustomBarShape) => {
   );
 };
 
-export default function BarChart({ data }: BarChartProps) {
+export default function BarChart({ data, title = 'Daily Spending' }: BarChartProps) {
   const uid = useId();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return <div className="w-full h-[300px] bg-transparent" />;
+  const hasData = data.length > 0;
   return (
-    <div className="h-full flex flex-col bg-[#161026]/60 border border-violet-950/40 rounded-2xl p-5">
-      <h3 className="text-xs font-semibold text-violet-300/60 uppercase tracking-wider shrink-0">
-        Daily Spending
+    <div className="h-full flex flex-col bg-[#161026]/60 border border-violet-950/40 rounded-2xl p-4 lg:p-5 overflow-hidden">
+      <h3 className="text-[11px] lg:text-xs font-semibold text-violet-300/60 uppercase tracking-wider shrink-0">
+        {title}
       </h3>
+      {!hasData ? (
+        <div className="flex-1 flex items-center justify-center text-violet-300/30 text-xs">
+          No transactions found for this selected period
+        </div>
+      ) : (
       <div className="flex-1 min-h-0 mt-3">
-        <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full min-w-0 relative h-[200px] sm:h-[300px]">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
           <RechartsBarChart data={data} margin={{ top: 10, right: 8, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id={`${uid}barGradient`} x1="0" y1="0" x2="0" y2="1">
@@ -95,7 +107,9 @@ export default function BarChart({ data }: BarChartProps) {
             />
           </RechartsBarChart>
         </ResponsiveContainer>
+        </div>
       </div>
+      )}
     </div>
   );
 }
