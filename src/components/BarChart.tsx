@@ -73,7 +73,7 @@ export default function BarChart({ data, title = 'Daily Spending' }: BarChartPro
       ) : (
       <div className="flex-1 min-h-0 mt-3">
         <div className="w-full min-w-0 relative h-[200px] sm:h-[300px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200} initialDimension={{ width: 1, height: 1 }}>
           <RechartsBarChart data={data} margin={{ top: 10, right: 8, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id={`${uid}barGradient`} x1="0" y1="0" x2="0" y2="1">

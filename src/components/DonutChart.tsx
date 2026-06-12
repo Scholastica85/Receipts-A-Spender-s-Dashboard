@@ -85,10 +85,10 @@ export default function DonutChart({ data }: DonutChartProps) {
           No category data for this period
         </div>
       ) : (
-        <div className="flex flex-row-reverse items-center justify-center w-full min-w-0 h-[200px] gap-2 sm:contents">
+        <div className="flex flex-row-reverse items-center justify-center w-full min-w-0 h-[200px] gap-2 sm:flex-col sm:h-auto sm:flex-1">
           <div className="w-[55%] h-full sm:w-full sm:flex-1 sm:min-h-0">
-            <div className="w-full min-w-0 relative h-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
+            <div className="w-full min-w-0 relative h-full min-h-[200px]">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200} initialDimension={{ width: 1, height: 1 }}>
               <PieChart>
                 <defs>
                   {chartData.map((entry, index) => (
